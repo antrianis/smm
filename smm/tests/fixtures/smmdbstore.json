@@ -1,0 +1,42 @@
+{
+  "__count__": 5, 
+  "__data__": {
+    "bash": {
+      "41b4f85e-8253-4b56-a24d-7629739e0667": {
+        "description": "imported", 
+        "group": "bash", 
+        "text": "bash imported"
+      }
+    }, 
+    "git": {
+      "b1890b4e-e45a-4906-92ee-bc456b8a093e": {
+        "description": "branchname", 
+        "group": "git", 
+        "text": "git status "
+      }, 
+      "e9feceae-5928-43cc-b750-144afaa788ac": {
+        "description": "Configure git", 
+        "group": "git", 
+        "text": "git config"
+      }, 
+      "fcbfe502-09f7-4892-904e-dbcc777de205": {
+        "description": "Create a new brachname from the current branch", 
+        "group": "git", 
+        "text": "git checkout -b branchname "
+      }
+    }, 
+    "vim": {
+      "b1890b4e-e4aa-4906-92ee-bc456b8a093e": {
+        "description": "Search", 
+        "group": "vim", 
+        "text": "/regexp <n/N>"
+      }
+    }
+  }, 
+  "__groups__": [
+    "bash", 
+    "vim", 
+    "git"
+  ], 
+  "owner": "anonymous"
+}

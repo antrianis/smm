@@ -1,0 +1,101 @@
+import unittest
+import os
+from mock import MagicMock
+import json
+from smm.backend_fixtures import COMM_TEXT, COMM_DESC, COMM_GROUP
+from smm.backend import SMMemory
+from smm.utils import get_abs_path
+from smm.backend_fixtures import DATA_ID, GROUP_ID
+from smm.backend_fixtures import DB_FILE_NAME, COUNT_ID
+
+
+class SMMTest(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        curr_dir = os.path.dirname(__file__)
+        path = get_abs_path(os.path.join(curr_dir, '../fixtures/'))
+        full_path = os.path.join(path, DB_FILE_NAME)
+        with open(full_path, 'r') as fp:
+            cls.smmdb_base = json.load(fp)
+        print full_path, path
+        cls._inst = SMMemory(path)
+
+    def test_list_all(self):
+        """List all categories and commands as dictionary"""
+        got_dict = self._inst.list_all()
+        for category in self.smmdb_base.get(GROUP_ID):
+            for command in self.smmdb_base.get(DATA_ID).get(category):
+                self.assertDictEqual(got_dict[command],
+                                     self.smmdb_base.get(DATA_ID).get(category).get(command))
+
+    def test_get_number_of_commands(self):
+        """Return number of commands"""
+        got_num = self._inst.get_number_of_commands()
+        self.assertEqual(got_num, self.smmdb_base.get(COUNT_ID))
+
+    def test_get_number_of_groups(self):
+        """Return number of groups"""
+        got_num = self._inst.get_number_of_groups()
+        self.assertEqual(got_num, len(self.smmdb_base.get(GROUP_ID)))
+
+    def test_find_commands(self):
+        """Find commands"""
+        all_commands = self._inst.find_commands("git reg")
+        self.assertEqual(len(all_commands), 4)
+
+    def test_find_command_group(self):
+        """Find commands in the group"""
+        found_commands = self._inst.find_command_group('git', 'status')
+        self.assertEqual(len(found_commands), 1)
+
+    def test_list_command_group(self):
+        """List all commands from a group"""
+        commands = self._inst.list_command_group('git')
+        self.assertDictEqual(commands, self.smmdb_base.get(DATA_ID).get('git'))
+
+    def test_list_all_groups(self):
+        """List all groups"""
+        groups = self._inst.list_all_groups()
+        self.assertListEqual(sorted(groups),
+                             sorted(self.smmdb_base.get(GROUP_ID)))
+
+    def test_delete_command(self):
+        """Delete command"""
+        _id = "41b4f85e-8253-4b56-a24d-7629739e0667"
+        self._inst._write_db = MagicMock(return_value=True)
+        self._inst.delete_command(_id)
+        self.smmdb_base.get(DATA_ID).get('bash').pop(_id)
+        self.smmdb_base[COUNT_ID] -= 1
+        self.assertEqual(self._inst.get_number_of_commands(),
+                         self.smmdb_base.get(COUNT_ID) )
+
+    def test_create_command_group(self):
+        """Create a command"""
+        self._inst._write_db = MagicMock(return_value=True)
+        gname = 'new_GROUP'
+        self._inst.create_command_group(gname)
+        self.smmdb_base.get(DATA_ID)[gname] = {}
+        self.assertEqual(self._inst.get_number_of_groups(),
+                         len(self.smmdb_base.get(GROUP_ID)) + 1
+                         )
+        self.smmdb_base.get(GROUP_ID).append(gname)
+
+    def test_delete_command_group(self):
+        """Delete a group"""
+        gname = 'new_group'
+        self._inst._write_db = MagicMock(return_value=True)
+        self._inst.create_command_group(gname)
+        self._inst.delete_command_group(gname)
+        self.assertEqual(self._inst.get_number_of_groups(),
+                         len(self.smmdb_base.get(GROUP_ID)))
+
+    def test_add_command(self):
+        """Add command"""
+        self._inst._write_db = MagicMock(return_value=True)
+        _id = 'tst_uuid'
+        cmnd = {COMM_DESC: 'desc', COMM_GROUP: 'bash', COMM_TEXT: 'txt'}
+        self._inst.add_command('bash', 'txt', 'desc', uid=_id)
+        all_commands = self._inst.list_all()
+        self.assertDictEqual(all_commands.get(_id), cmnd)
+        self._inst.delete_command(_id)

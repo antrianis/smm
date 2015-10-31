@@ -1,0 +1,24 @@
+{
+  "__count__": 2,
+  "__data__": {
+    "bash": {
+      "41b4f85e-8253-4b56-a24d-7629739e0667": {
+        "description": "imported",
+        "group": "bash", 
+        "text": "imported"
+      }
+    }, 
+    "vim": {
+      "b1890b4e-e4aa-4906-92ee-bc456b8a093e": {
+        "description": "Search",
+        "group": "vim",
+        "text": "/regexp <n/N>"
+      }
+    }
+  }, 
+  "__groups__": [
+    "bash", 
+    "vim"
+  ], 
+  "owner": "anonymous"
+}
